@@ -1,22 +1,28 @@
 # Titanic Survival Analysis
 
-This repository contains my analysis of the Titanic dataset (Kaggle) as part of a data science assignment.
+This project analyzes the Titanic dataset from Kaggle to explore patterns in passenger survival using Python and Streamlit.
 
-## Overview
+## Exercises Covered
 
-This project addresses two exercises:
+### **Exercise 1: Survival Patterns**
+- Created age groups (Child, Teen, Adult, Senior)
+- Grouped data by class, sex, and age group
+- Calculated survival counts and rates
+- Visualized using Plotly
 
-1. **Survival Patterns**  
-   - Grouped passengers by class, sex, and age group  
-   - Calculated survival rates  
-   - Visualized survival patterns with Plotly and Streamlit
+**Key Finding:**  
+Women in first class had significantly higher survival rates than men in all classes.
 
-2. **Family Size and Wealth**  
-   - Created a family size feature  
-   - Explored relationships between class, family size, and fare  
-   - Extracted last names to count families
+### **Exercise 2: Family Size & Wealth**
+- Created a `family_size` feature
+- Grouped by class and family size
+- Computed statistics on ticket fare
+- Extracted last names and compared frequency
 
-## How to Run
+**Key Finding:**  
+Larger families in higher classes tended to pay higher average fares. Last name frequency aligned with larger family groupings.
+
+## Usage
 
 Install dependencies:
 
