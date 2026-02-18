@@ -1,14 +1,9 @@
-# -------------------------
-# Imports
-# -------------------------
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
 
-# -------------------------
-# Exercise 1: Survival Patterns
-# -------------------------
 
 def survival_demographics(df):
     df = df.copy()
@@ -50,9 +45,7 @@ def visualize_demographic(summary):
     return fig
 
 
-# -------------------------
-# Exercise 2: Family Size and Wealth
-# -------------------------
+
 
 def family_groups(df):
     df = df.copy()
@@ -101,17 +94,12 @@ def visualize_families(summary):
     return fig
 
 
-# -------------------------
-# Main Streamlit App
-# -------------------------
 
 st.title("Titanic Data Analysis")
 
 df = pd.read_csv("titanic.csv")
 
-# -------------------------
-# Exercise 1 Output
-# -------------------------
+
 
 st.header("Exercise 1: Survival Patterns")
 
@@ -133,9 +121,6 @@ st.write(
 )
 
 
-# -------------------------
-# Exercise 2 Output
-# -------------------------
 
 st.header("Exercise 2: Family Size and Wealth")
 
