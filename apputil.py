@@ -1,9 +1,14 @@
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
 
+DATA_PATH = Path(__file__).resolve().parent / "titanic.csv"
+df_titanic = pd.read_csv(DATA_PATH)
 
-def survival_demographics(df):
-    df = df.copy()
+
+def survival_demographics():
+    df = df_titanic.copy()
 
     pclass_order = [1, 2, 3]
     sex_order = ["female", "male"]
@@ -45,7 +50,8 @@ def survival_demographics(df):
     return summary
 
 
-def visualize_demographic(summary):
+def visualize_demographic():
+    summary = survival_demographics()
     return px.bar(
         summary,
         x="Pclass",
@@ -57,8 +63,8 @@ def visualize_demographic(summary):
     )
 
 
-def family_groups(df):
-    df = df.copy()
+def family_groups():
+    df = df_titanic.copy()
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
     summary = (
@@ -77,13 +83,14 @@ def family_groups(df):
     return summary
 
 
-def last_names(df):
-    df = df.copy()
+def last_names():
+    df = df_titanic.copy()
     df["last_name"] = df["Name"].astype(str).str.split(",").str[0].str.strip()
     return df["last_name"].value_counts()
 
 
-def visualize_families(summary):
+def visualize_families():
+    summary = family_groups()
     return px.scatter(
         summary,
         x="family_size",
