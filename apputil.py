@@ -4,56 +4,87 @@ import plotly.express as px
 
 def survival_demographics(df):
     df = df.copy()
-    df["AgeGroup"] = pd.cut(
+
+    pclass_order = [1, 2, 3]
+    sex_order = ["female", "male"]
+    age_order = ["Child", "Teen", "Adult", "Senior"]
+
+    df["Pclass"] = pd.Categorical(df["Pclass"], categories=pclass_order, ordered=True)
+    df["Sex"] = pd.Categorical(df["Sex"], categories=sex_order, ordered=True)
+
+    df["age_group"] = pd.cut(
         df["Age"],
         bins=[0, 12, 19, 59, 120],
-        labels=["Child", "Teen", "Adult", "Senior"]
+        labels=age_order,
+        include_lowest=True,
+        right=True,
+        ordered=True,
     )
-    grouped = df.groupby(["Pclass", "Sex", "AgeGroup"])
-    summary = grouped.agg(
-        n_passengers=("Survived", "count"),
-        n_survivors=("Survived", "sum")
-    ).reset_index()
+
+    summary = (
+        df.groupby(["Pclass", "Sex", "age_group"], observed=False)
+        .agg(
+            n_passengers=("Survived", "size"),
+            n_survivors=("Survived", "sum"),
+        )
+    )
+
+    full_index = pd.MultiIndex.from_product(
+        [pclass_order, sex_order, age_order],
+        names=["Pclass", "Sex", "age_group"],
+    )
+
+    summary = summary.reindex(full_index, fill_value=0).reset_index()
+    summary["age_group"] = pd.Categorical(
+        summary["age_group"], categories=age_order, ordered=True
+    )
+
     summary["survival_rate"] = summary["n_survivors"] / summary["n_passengers"]
-    summary = summary.sort_values(by=["Pclass", "Sex", "AgeGroup"])
+    summary.loc[summary["n_passengers"] == 0, "survival_rate"] = pd.NA
+
     return summary
 
 
 def visualize_demographic(summary):
-    fig = px.bar(
+    return px.bar(
         summary,
         x="Pclass",
         y="survival_rate",
         color="Sex",
-        facet_col="AgeGroup",
+        facet_col="age_group",
         barmode="group",
-        title="Survival Rate by Class, Sex, and Age Group"
+        title="Survival Rate by Class, Sex, and Age Group",
     )
-    return fig
 
 
 def family_groups(df):
     df = df.copy()
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
-    grouped = df.groupby(["Pclass", "family_size"])
-    summary = grouped.agg(
-        n_passengers=("PassengerId", "count"),
-        avg_fare=("Fare", "mean"),
-        min_fare=("Fare", "min"),
-        max_fare=("Fare", "max")
-    ).reset_index()
-    summary = summary.sort_values(by=["Pclass", "family_size"])
+
+    summary = (
+        df.groupby(["Pclass", "family_size"], observed=False)
+        .agg(
+            n_passengers=("PassengerId", "count"),
+            avg_fare=("Fare", "mean"),
+            min_fare=("Fare", "min"),
+            max_fare=("Fare", "max"),
+        )
+        .reset_index()
+        .sort_values(["Pclass", "family_size"], kind="stable")
+        .reset_index(drop=True)
+    )
+
     return summary
 
 
 def last_names(df):
     df = df.copy()
-    df["last_name"] = df["Name"].str.split(",").str[0]
+    df["last_name"] = df["Name"].astype(str).str.split(",").str[0].str.strip()
     return df["last_name"].value_counts()
 
 
 def visualize_families(summary):
-    fig = px.scatter(
+    return px.scatter(
         summary,
         x="family_size",
         y="avg_fare",
@@ -62,7 +93,6 @@ def visualize_families(summary):
         title="Family Size vs Average Fare by Passenger Class",
         labels={
             "family_size": "Family Size",
-            "avg_fare": "Average Fare"
-        }
+            "avg_fare": "Average Fare",
+        },
     )
-    return fig
