@@ -14,8 +14,8 @@ def survival_demographics():
     sex_order = ["female", "male"]
     age_order = ["Child", "Teen", "Adult", "Senior"]
 
-    df["Pclass"] = pd.Categorical(df["Pclass"], categories=pclass_order, ordered=True)
-    df["Sex"] = pd.Categorical(df["Sex"], categories=sex_order, ordered=True)
+    df["pclass"] = pd.Categorical(df["Pclass"], categories=pclass_order, ordered=True)
+    df["sex"] = pd.Categorical(df["Sex"], categories=sex_order, ordered=True)
 
     df["age_group"] = pd.cut(
         df["Age"],
@@ -27,7 +27,7 @@ def survival_demographics():
     )
 
     summary = (
-        df.groupby(["Pclass", "Sex", "age_group"], observed=False)
+        df.groupby(["pclass", "sex", "age_group"], observed=False)
         .agg(
             n_passengers=("Survived", "size"),
             n_survivors=("Survived", "sum"),
@@ -36,7 +36,7 @@ def survival_demographics():
 
     full_index = pd.MultiIndex.from_product(
         [pclass_order, sex_order, age_order],
-        names=["Pclass", "Sex", "age_group"],
+        names=["pclass", "sex", "age_group"],
     )
 
     summary = summary.reindex(full_index, fill_value=0).reset_index()
@@ -54,9 +54,9 @@ def visualize_demographic():
     summary = survival_demographics()
     return px.bar(
         summary,
-        x="Pclass",
+        x="pclass",
         y="survival_rate",
-        color="Sex",
+        color="sex",
         facet_col="age_group",
         barmode="group",
         title="Survival Rate by Class, Sex, and Age Group",
@@ -76,7 +76,8 @@ def family_groups():
             max_fare=("Fare", "max"),
         )
         .reset_index()
-        .sort_values(["Pclass", "family_size"], kind="stable")
+        .rename(columns={"Pclass": "pclass"})
+        .sort_values(["pclass", "family_size"], kind="stable")
         .reset_index(drop=True)
     )
 
@@ -95,7 +96,7 @@ def visualize_families():
         summary,
         x="family_size",
         y="avg_fare",
-        color="Pclass",
+        color="pclass",
         size="n_passengers",
         title="Family Size vs Average Fare by Passenger Class",
         labels={
